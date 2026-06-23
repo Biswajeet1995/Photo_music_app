@@ -19,45 +19,51 @@ if uploaded_file:
     with open(temp_path, "wb") as f:
         f.write(uploaded_file.read())
 
-    st.image(temp_path, caption="Uploaded Image")
+    try:
+        st.image(temp_path, caption="Uploaded Image")
 
-    matched, score = verify_image(
-        temp_path,
-        TARGET_IMAGE
-    )
+        matched, score = verify_image(
+            temp_path,
+            TARGET_IMAGE
+        )
 
-    st.write(f"Matching Score: {score}")
+        st.write(f"Matching Score: {score}")
 
-    if matched:
+        if matched:
 
-        st.success("✅ Authorized Image Detected")
+            st.success("✅ Authorized Image Detected")
 
-        songs = [
-            file for file in os.listdir(SONG_FOLDER)
-            if file.endswith(".mp3")
-        ]
+            songs = [
+                file for file in os.listdir(SONG_FOLDER)
+                if file.endswith(".mp3")
+            ]
 
-        if songs:
+            if songs:
 
-            selected_song = st.selectbox(
-                "Choose a Song",
-                songs
-            )
+                selected_song = st.selectbox(
+                    "Choose a Song",
+                    songs
+                )
 
-            song_path = os.path.join(
-                SONG_FOLDER,
-                selected_song
-            )
+                song_path = os.path.join(
+                    SONG_FOLDER,
+                    selected_song
+                )
 
-            audio_file = open(song_path, "rb")
+                audio_file = open(song_path, "rb")
 
-            st.audio(
-                audio_file.read(),
-                format="audio/mp3"
-            )
+                st.audio(
+                    audio_file.read(),
+                    format="audio/mp3"
+                )
+
+            else:
+                st.warning("No songs found.")
 
         else:
-            st.warning("No songs found.")
-
-    else:
-        st.error("❌ Image Not Recognized")
+            st.error("❌ Image Not Recognized")
+    finally:
+        try:
+            os.remove(temp_path)
+        except OSError:
+            pass
